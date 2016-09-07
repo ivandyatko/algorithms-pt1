@@ -25,11 +25,11 @@ public class PercolationStats {
             while (!p.percolates()) {
                 p.open(randInRange(n), randInRange(n));
             }
-            
+
             int count = 0;
             for (int i1 = 1; i1 <= n; i1++) {
                 for (int j = 1; j <= n; j++) {
-                    if (p.isOpen(i1,j)) {
+                    if (p.isOpen(i1, j)) {
                         count++;
                     }
                 }
@@ -48,6 +48,9 @@ public class PercolationStats {
 
 
     public double stddev() {
+        if (trials == 1) {
+            return Double.NaN;
+        }
         // sample standard deviation of percolation threshold
         return StdStats.stddev(results);
     }
