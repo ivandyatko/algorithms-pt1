@@ -4,7 +4,7 @@ public class Percolation {
 
     private final int a, arrSize;
 
-    final boolean[] state;
+    private final boolean[] state;
 
     private final WeightedQuickUnionUF uf;
 
