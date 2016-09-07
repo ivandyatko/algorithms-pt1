@@ -22,13 +22,11 @@ public class PercolationStats {
         while (++i < trials) {
             Percolation p = new Percolation(n);
 
-            int count = 0;
             while (!p.percolates()) {
                 p.open(randInRange(n), randInRange(n));
-                count++;
             }
 
-            results[i] = count / gridSize;
+            results[i] = openSites(p.state) / gridSize;
         }
         // perform trials independent experiments on an n-by-n grid
     }
@@ -60,6 +58,18 @@ public class PercolationStats {
 
     private int randInRange(int n) {
         return StdRandom.uniform(1, n + 1);
+    }
+
+
+    private int openSites(boolean[] state) {
+        int openSites = 0;
+        for (int i = 1; i < state.length - 1; i++) {
+            if (state[i]) {
+                openSites++;
+            }
+        }
+
+        return openSites;
     }
 
 
