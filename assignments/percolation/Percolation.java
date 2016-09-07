@@ -86,13 +86,4 @@ public class Percolation {
     private int findElem(final int i, final int j) {
         return (i - 1) * a + j;
     }
-
-
-    public static void main(String[] args) {
-        System.out.print("Oh, Hi!");
-
-        Percolation p = new Percolation(3);
-
-        System.out.println();
-    }
 }
