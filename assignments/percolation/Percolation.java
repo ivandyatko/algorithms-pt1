@@ -83,18 +83,6 @@ public class Percolation {
     }
 
 
-    public int openSites() {
-        int openSites = 0;
-        for (int i = 1; i < state.length - 1; i++) {
-            if (state[i]) {
-                openSites++;
-            }
-        }
-
-        return openSites;
-    }
-
-
     private int findElem(final int i, final int j) {
         return (i - 1) * a + j;
     }

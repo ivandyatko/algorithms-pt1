@@ -22,11 +22,13 @@ public class PercolationStats {
         while (++i < trials) {
             Percolation p = new Percolation(n);
 
+            int count = 0;
             while (!p.percolates()) {
                 p.open(randInRange(n), randInRange(n));
+                count++;
             }
 
-            results[i] = p.openSites() / gridSize;
+            results[i] = count / gridSize;
         }
         // perform trials independent experiments on an n-by-n grid
     }
