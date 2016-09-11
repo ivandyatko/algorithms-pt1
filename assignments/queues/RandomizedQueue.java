@@ -7,13 +7,12 @@ import java.util.NoSuchElementException;
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] stack;
-    private int tail, count;
+    private int tail = -1, count;
 
 
     /**
      * Construct an empty randomized queue.
      */
-    @SuppressWarnings("unchecked")
     public RandomizedQueue() {
         stack = (Item[]) new Object[2];
     }
@@ -38,11 +37,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     /**
      * Resize the underlying array.
      */
-    @SuppressWarnings("unchecked")
     private void resize(int capacity) {
         assert capacity >= count;
         Item[] temp = (Item[]) new Object[capacity];
-        System.arraycopy(stack, 0, temp, 0, tail);
+        System.arraycopy(stack, 0, temp, 0, count);
         stack = temp;
     }
 
@@ -59,7 +57,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (count == stack.length) {
             resize(2 * stack.length);   // double size of array if necessary
         }
-        stack[tail++] = item;           // add item
+        stack[++tail] = item;           // add item
         count++;
     }
 
@@ -72,16 +70,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         final int rand = getRandom();
         Item item = stack[rand];
 
-        int i = rand;
-        while (i < tail) {
-            stack[i] = stack[++i];
-        }
-        tail--;
-        //        stack[rand] = null;                   // to avoid loitering
+        System.arraycopy(stack, rand + 1, stack, rand, tail - rand);
+        stack[tail--] = null;
         count--;
 
         // shrink size of array if necessary
-        if (count > 0 && count == stack.length / 4) {
+        if (count == stack.length / 4) {
             resize(stack.length / 2);
         }
         return item;
@@ -98,7 +92,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 
     private int getRandom() {
-        return StdRandom.uniform(0, tail);
+        return StdRandom.uniform(0, count);
     }
 
 
@@ -108,23 +102,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Iterator<Item> iterator() {
 
         int[] copy = new int[count];
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i <= tail; i++) {
             copy[i] = i;
         }
         StdRandom.shuffle(copy);
 
         return new Iterator<Item>() {
-            int current = 0;
+            private int current = 0;
 
 
             @Override
             public boolean hasNext() {
-                return current <= count;
+                return current <= tail;
             }
 
 
             @Override
             public Item next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
                 return stack[copy[current++]];
             }
 
@@ -145,26 +142,38 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 
     public static void main(String[] args) {
-        RandomizedQueue<Integer> q = new RandomizedQueue<Integer>();
-        q.enqueue(1);
-        q.enqueue(2);
-        q.enqueue(3);
+        RandomizedQueue<Integer> rq = new RandomizedQueue<Integer>();
+        rq.enqueue(254);
+        rq.enqueue(304);
+        rq.enqueue(443);
+        rq.enqueue(257);
+        rq.dequeue();
+        rq.enqueue(71);
+        rq.enqueue(379);
+        rq.enqueue(252);
 
-        StdOut.println(q.dequeue());
-        StdOut.println(q.dequeue());
-        StdOut.println(q.dequeue());
+        Iterator<Integer> it = rq.iterator();
+        while (it.hasNext()) {
+            StdOut.println(it.next());
+        }
+
+        StdOut.println();
+        StdOut.println(rq.size());
+
+        StdOut.println("----------");
+
 
         try {
-            StdOut.println(q.dequeue());
+            StdOut.println(rq.dequeue());
         } catch (NoSuchElementException e) {
             StdOut.println("caught NSEE");
         }
 
-        q.enqueue(5);
+        rq.enqueue(5);
 
-        StdOut.println(q.size());
-        StdOut.println(q.sample().equals(q.sample()));
+        StdOut.println(rq.size());
+        StdOut.println(rq.sample().equals(rq.sample()));
 
-        StdOut.println("== 5 ? : " + (q.dequeue() == 5));
+        StdOut.println("== 5 ? : " + (rq.dequeue() == 5));
     }
 }
