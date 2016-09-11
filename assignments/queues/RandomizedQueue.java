@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Iterator;
@@ -5,10 +6,8 @@ import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
-    private Item[] q;       // queue elements
-    private int n;          // number of elements on queue
-    private int first;      // index of first element of queue
-    private int last;
+    private Item[] stack;
+    private int tail, count;
 
 
     /**
@@ -16,7 +15,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      */
     @SuppressWarnings("unchecked")
     public RandomizedQueue() {
-        q = (Item[]) new Object[2];
+        stack = (Item[]) new Object[2];
     }
 
 
@@ -24,7 +23,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * Is the queue empty?
      */
     public boolean isEmpty() {
-        return n == 0;
+        return count == 0;
     }
 
 
@@ -32,7 +31,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * Return the number of items on the queue.
      */
     public int size() {
-        return n;
+        return count;
     }
 
 
@@ -41,14 +40,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      */
     @SuppressWarnings("unchecked")
     private void resize(int capacity) {
-        assert capacity >= n;
+        assert capacity >= count;
         Item[] temp = (Item[]) new Object[capacity];
-        for (int i = 0; i < n; i++) {
-            temp[i] = q[(first + i) % q.length];
-        }
-        q = temp;
-        first = 0;
-        last = n;
+        System.arraycopy(stack, 0, temp, 0, tail);
+        stack = temp;
     }
 
 
@@ -61,14 +56,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         // double size of array if necessary and recopy to front of array
-        if (n == q.length) {
-            resize(2 * q.length);   // double size of array if necessary
+        if (count == stack.length) {
+            resize(2 * stack.length);   // double size of array if necessary
         }
-        q[last++] = item;           // add item
-        if (last == q.length) {
-            last = 0;               // wrap-around
-        }
-        n++;
+        stack[tail++] = item;           // add item
+        count++;
     }
 
 
@@ -78,32 +70,21 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item dequeue() {
         checkEmpty();
         final int rand = getRandom();
-        Item item = q[rand];
-        q[rand] = null;                   // to avoid loitering
-        n--;
-        if (rand == first) {
-            first++;
-        } else if (rand == last) {
-            last--;
-        } else {
-            offset(rand);
+        Item item = stack[rand];
+
+        int i = rand;
+        while (i < tail) {
+            stack[i] = stack[++i];
         }
-        if (first == q.length) {
-            first = 0;                      // wrap-around
-        }
+        tail--;
+        //        stack[rand] = null;                   // to avoid loitering
+        count--;
+
         // shrink size of array if necessary
-        if (n > 0 && n == q.length / 4) {
-            resize(q.length / 2);
+        if (count > 0 && count == stack.length / 4) {
+            resize(stack.length / 2);
         }
         return item;
-    }
-
-
-    private void offset(int rand) {
-        while (rand < last) {
-            q[rand] = q[++rand];
-        }
-        last--;
     }
 
 
@@ -112,16 +93,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      */
     public Item sample() {
         checkEmpty();
-        return q[getRandom()];
+        return stack[getRandom()];
     }
 
 
     private int getRandom() {
-        if (first <= last) {
-            return StdRandom.uniform(first, last);
-        } else {
-
-        }
+        return StdRandom.uniform(0, tail);
     }
 
 
@@ -130,16 +107,25 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      */
     public Iterator<Item> iterator() {
 
+        int[] copy = new int[count];
+        for (int i = 0; i < count; i++) {
+            copy[i] = i;
+        }
+        StdRandom.shuffle(copy);
+
         return new Iterator<Item>() {
+            int current = 0;
+
+
             @Override
             public boolean hasNext() {
-                return false;
+                return current <= count;
             }
 
 
             @Override
             public Item next() {
-                return null;
+                return stack[copy[current++]];
             }
 
 
@@ -159,6 +145,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
 
     public static void main(String[] args) {
-        // unit testing
+        RandomizedQueue<Integer> q = new RandomizedQueue<Integer>();
+        q.enqueue(1);
+        q.enqueue(2);
+        q.enqueue(3);
+
+        StdOut.println(q.dequeue());
+        StdOut.println(q.dequeue());
+        StdOut.println(q.dequeue());
+
+        try {
+            StdOut.println(q.dequeue());
+        } catch (NoSuchElementException e) {
+            StdOut.println("caught NSEE");
+        }
+
+        q.enqueue(5);
+
+        StdOut.println(q.size());
+        StdOut.println(q.sample().equals(q.sample()));
+
+        StdOut.println("== 5 ? : " + (q.dequeue() == 5));
     }
 }
