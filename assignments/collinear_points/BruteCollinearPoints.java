@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class BruteCollinearPoints {
 
-    private ArrayList<LineSegment> segments;
+    private ArrayList<LineSegment> segments = new ArrayList<>();
 
 
     /**
@@ -17,25 +17,28 @@ public class BruteCollinearPoints {
         if (points == null) {
             throw new NullPointerException("null argument passed");
         }
-        Arrays.sort(points);
+
+        Point[] pts = new Point[points.length];
+        System.arraycopy(points, 0, pts, 0, pts.length);
+
+        Arrays.sort(pts);
         int idx = 0;
-        final int n = points.length;
+        final int n = pts.length;
         while (idx < n - 1) {
-            if (points[idx] == null) {
+            if (pts[idx] == null) {
                 throw new NullPointerException("null point found.");
-            } else if (points[idx].compareTo(points[++idx]) == 0) {
+            } else if (pts[idx].compareTo(pts[++idx]) == 0) {
                 throw new IllegalArgumentException("duplicate point found");
             }
         }
-        segments = new ArrayList<>();
 
         for (int p = 0; p < n; p++) {
             for (int q = p + 1; q < n; q++) {
                 for (int r = q + 1; r < n; r++) {
                     for (int s = r + 1; s < n; s++) {
-                        if (points[p].slopeTo(points[q]) == points[p].slopeTo(points[r])
-                            && points[p].slopeTo(points[q]) == points[p].slopeTo(points[s])) {
-                            segments.add(new LineSegment(points[p], points[s]));
+                        if (pts[p].slopeTo(pts[q]) == pts[p].slopeTo(pts[r])
+                            && pts[p].slopeTo(pts[q]) == pts[p].slopeTo(pts[s])) {
+                            segments.add(new LineSegment(pts[p], pts[s]));
                         }
                     }
                 }
@@ -63,7 +66,9 @@ public class BruteCollinearPoints {
     public static void main(String[] args) {
 
         // read the n points from a file
-        In in = new In("C:\\devbox\\princeton algorithms pt1\\algorithms-pt1\\assignments\\collinear_points\\input8.txt");
+        //        In in =
+        // new In("C:\\devbox\\princeton algorithms pt1\\algorithms-pt1\\assignments\\collinear_points\\input6.txt");
+        In in = new In(args[0]);
         int n = in.readInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
