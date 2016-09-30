@@ -107,15 +107,18 @@ public class Board {
     public Board twin() {
         int first, second;
         do {
-            first = StdRandom.uniform(0, flatArray.length - 1);
-        } while (first != 0);
+            first = getRandom();
+        } while (flatArray[first] == 0);
 
         do {
-            second = StdRandom.uniform(0, flatArray.length - 1);
-        } while (second != 0 && second != first);
+            second = getRandom();
+        } while (flatArray[second] == 0 || second == first);
 
         return this.copyAndSwap(first, second);
     }
+
+
+    private int getRandom() {return StdRandom.uniform(0, flatArray.length - 1);}
 
 
     private Board copyAndSwap(final int firstElem, final int secondElem) {
@@ -203,6 +206,8 @@ public class Board {
         System.out.println();
         System.out.println("manhattan 0? = " + b.manhattan());
         System.out.println("hamming 0? = " + b.hamming());
+        System.out.println();
+        System.out.println("twin ? = " + b.twin());
 
         // goal board construct
         int[][] arr2 = { { 1, 2, 6 }, { 3, 5, 4 }, { 7, 0, 8 } };
